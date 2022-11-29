@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+  frontend:
+    restart: always
+    build:
+      context: frontend
+      args:
+        SSR_BASE_URL: http://backend:8000
+        CLIENT_BASE_URL: /api
+  backend:
+    restart: always
+    build:
+      context: backend
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://producegoose:drowssap@postgres:5432/website}
+      - JWT_SECRET=${JWT_SECRET:-441455e6b8b8e7f6880f5f8a4f185e1e22ed99c2bf6a308a0eb3d5c860870b21}
+      - BASE_URL_UI=${BASE_URL_UI:-http://localhost:8080}
+      - BASE_URL_API=${BASE_URL_API:-http://localhost:8080/api}
+    env_file: .env
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=producegoose
+      - POSTGRES_DB=website
+      - POSTGRES_PASSWORD=drowssap
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
+  stripe-cli:
+    image: stripe/stripe-cli
+    container_name: stripe-cli
+    command: "listen --api-key=${STRIPE_PRIVATE_KEY} --events=checkout.session.completed --forward-to http://backend:8000/webhook/stripe/"
