@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  frontend:
+    environment:
+      - HOST=0.0.0.0
+      - NUXT_BASE_URL=http://backend:8000
+      - NUXT_PUBLIC_BASE_URL=http://localhost:8080/api
+    volumes:
+      - ./frontend:/usr/src/npm-modules/nuxt-app
+    command: npm run dev
+  backend:
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://producegoose:drowssap@postgres:5432/website}
+      - JWT_SECRET=${JWT_SECRET:-441455e6b8b8e7f6880f5f8a4f185e1e22ed99c2bf6a308a0eb3d5c860870b21}
+      - BASE_URL_UI=${BASE_URL_UI:-http://localhost:8080}
+      - BASE_URL_API=${BASE_URL_API:-http://localhost:8080/api}
+    env_file: .env
+    volumes:
+      - ./backend:/home/appuser
+    command: --reload
