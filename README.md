@@ -203,6 +203,13 @@ To rebuild the backend container, run the following command:
 docker-compose build backend
 ```
 
+After rebuilding you'll need to restart all the docker containers:
+
+```
+docker-compose down
+docker-compose up
+```
+
 ### Pulling New Changes
 
 If there are new changes upstream, you pull the changes with:
